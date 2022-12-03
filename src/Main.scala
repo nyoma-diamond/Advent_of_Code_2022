@@ -1,6 +1,7 @@
 import scala.io.Source
 import scala.util.Using
 
+
 object Main {
 
     /**
@@ -85,6 +86,70 @@ object Main {
     }
 
 
+    /**
+     * Get the priority for an item
+     *
+     * @param item item to get priority of
+     * @return int representing the priority
+     */
+    def itemPriority(item: Char): Int = {
+        item % ('a' - 'A') + (              // offset so 'a' and 'A' start at 1
+          if (item.isUpper)                 // if character is upercase
+              'z' - 'a' + 1                 // offset priority up by 26
+          else                              // otherwise
+              0                             // no offset
+          )
+    }
+
+
+    /**
+     * Day 3 part 1: Find the sum of priorities of items in two compartments of the same rucksack
+     *
+     * @param path path to input file
+     * @return sum of priorities
+     */
+    def day3part1(path: String): Int = {
+        Using(Source.fromFile(path)) { data =>                          // load input data file
+            data.getLines()                                             // for each line in file
+                .foldLeft(0)(                                           // initialize partial sum to 0
+                    (sum: Int, rucksack: String) => {                   // given partial sum and current rucksack (line)
+                        sum + itemPriority((                            // add priority of shared item (found below) to partial sum
+                          rucksack.take(rucksack.length / 2)            // use the left compartment to...
+                            intersect                                   // compute the intersection...
+                            rucksack.takeRight(rucksack.length / 2)     // with the right compartment
+                        )(0))                                           // get the item
+                    }
+                )
+        }.get                                                           // get final result
+    }
+
+
+    /**
+     * Day 3 part 2: Find the sum of priorities of badges
+     * Note: Problem originally stated that badges are shared by 3 adjacent elves. Abstracted to `n` because I can
+     *
+     * @param path path to input file
+     * @param n number of adjacent elves to find badges in
+     * @return sum of priorities of badges
+     */
+    def day3part2(path: String, n: Int): Int = {
+        Using(Source.fromFile(path)) { data =>                              // load input data file
+            data.getLines()                                                 // for each line in file
+                .sliding(n, n)                                              // split rucksacks (lines) by desired group size
+                .foldLeft(0)(                                               // initialize partial sum to 0
+                    (sum: Int, sacks: Seq[String]) => {                     // given partial sum and current group
+                        sum + itemPriority(                                 // add priority of badge (found below) to partial sum
+                            sacks.foldLeft(('A' to 'z').mkString)(    // within the group, initialize partial list of shared items
+                                (shared: String, rucksack: String) =>       // given the partial list of shared items and a rucksack
+                                    shared intersect rucksack               // compute the intersection of partial shared items and the rucksack
+                            )(0)                                            // get the badge
+                        )
+                    }
+                )
+        }.get                                                               // get final result
+    }
+
+
     def main(args: Array[String]): Unit = {
         println("Day 1 part 1: " + day1Part1("./in/day1.txt"))
         println("Day 1 part 2: " + day1Part2("./in/day1.txt", 3))
@@ -92,5 +157,8 @@ object Main {
 
         println("Day 2 part 1: " + day2part1("./in/day2.txt"))
         println("Day 2 part 2: " + day2part2("./in/day2.txt"))
+
+        println("Day 3 part 1: " + day3part1("./in/day3.txt"))
+        println("Day 3 part 2: " + day3part2("./in/day3.txt", 3))
     }
 }
