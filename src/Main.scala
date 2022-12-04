@@ -87,40 +87,24 @@ object Main {
 
 
     /**
-     * Get the priority for an item
-     *
-     * @param item item to get priority of
-     * @return int representing the priority
-     */
-    def itemPriority(item: Char): Int = {
-        item % ('a' - 'A') + (              // offset so 'a' and 'A' start at 1
-          if (item.isUpper)                 // if character is upercase
-              'z' - 'a' + 1                 // offset priority up by 26
-          else                              // otherwise
-              0                             // no offset
-          )
-    }
-
-
-    /**
      * Day 3 part 1: Find the sum of priorities of items in two compartments of the same rucksack
      *
      * @param path path to input file
      * @return sum of priorities
      */
     def day3part1(path: String): Int = {
-        Using(Source.fromFile(path)) { data =>                          // load input data file
-            data.getLines()                                             // for each line in file
-                .foldLeft(0)(                                           // initialize partial sum to 0
-                    (sum: Int, rucksack: String) => {                   // given partial sum and current rucksack (line)
-                        sum + itemPriority((                            // add priority of shared item (found below) to partial sum
-                          rucksack.take(rucksack.length / 2)            // use the left compartment to...
-                            intersect                                   // compute the intersection...
-                            rucksack.takeRight(rucksack.length / 2)     // with the right compartment
-                        )(0))                                           // get the item
+        Using(Source.fromFile(path)) { data =>                              // load input data file
+            data.getLines()                                                 // for each line in file
+                .foldLeft(0)(                                               // initialize partial sum to 0
+                    (sum: Int, rucksack: String) => {                       // given partial sum and current rucksack (line)
+                        sum + ((                                            // add priority of shared item (found below) to partial sum
+                          rucksack.take(rucksack.length / 2)                // use the left compartment to...
+                            intersect                                       // compute the intersection...
+                            rucksack.takeRight(rucksack.length / 2)         // with the right compartment
+                        )(0)  - 'A' + 'z' - 'a' + 1) % ('z' - 'A' + 1) + 1  // get the item and compute its priority
                     }
                 )
-        }.get                                                           // get final result
+        }.get                                                               // get final result
     }
 
 
@@ -129,7 +113,7 @@ object Main {
      * Note: Problem originally stated that badges are shared by 3 adjacent elves. Abstracted to `n` because I can
      *
      * @param path path to input file
-     * @param n number of adjacent elves to find badges in
+     * @param n    number of adjacent elves to find badges in
      * @return sum of priorities of badges
      */
     def day3part2(path: String, n: Int): Int = {
@@ -138,12 +122,11 @@ object Main {
                 .sliding(n, n)                                              // split rucksacks (lines) by desired group size
                 .foldLeft(0)(                                               // initialize partial sum to 0
                     (sum: Int, sacks: Seq[String]) => {                     // given partial sum and current group
-                        sum + itemPriority(                                 // add priority of badge (found below) to partial sum
-                            sacks.foldLeft(('A' to 'z').mkString)(    // within the group, initialize partial list of shared items
-                                (shared: String, rucksack: String) =>       // given the partial list of shared items and a rucksack
-                                    shared intersect rucksack               // compute the intersection of partial shared items and the rucksack
-                            )(0)                                            // get the badge
-                        )
+                        sum +  (                                            // add 1 to partial sum
+                          sacks.foldLeft(('A' to 'z').mkString)(      // within the group, initialize partial list of shared items
+                              (shared: String, rucksack: String) =>         // given the partial list of shared items and a rucksack
+                                  shared intersect rucksack                 // compute the intersection of partial shared items and the rucksack
+                          )(0) - 'A' + 'z' - 'a' + 1) % ('z' - 'A' + 1) + 1 // get the badge and compute its priority
                     }
                 )
         }.get                                                               // get final result
