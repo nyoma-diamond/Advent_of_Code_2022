@@ -1,8 +1,11 @@
 import scala.io.Source
+import scala.language.implicitConversions
 import scala.util.Using
 
-
 object Main {
+
+    // This allows me to treat booleans as integers, which is convenient for some math
+    implicit def bool2int(b:Boolean): Int = if (b) 1 else 0
 
     /**
      * Day 1 part 1: Find the maximum total calories among the elves
@@ -29,7 +32,7 @@ object Main {
      * Note: Problem originally requested highest 3. Abstracted to highest `n` so this solution can also handle part 1!
      *
      * @param path path to input file
-     * @param n number of highest values to get
+     * @param n    number of highest values to get
      * @return sum of highest `n` total calories
      */
     def day1Part2(path: String, n: Int): Int = {
@@ -99,8 +102,8 @@ object Main {
                     (sum: Int, rucksack: String) => {                       // given partial sum and current rucksack (line)
                         sum + ((                                            // add priority of shared item (found below) to partial sum
                           rucksack.take(rucksack.length / 2)                // use the left compartment to...
-                            intersect                                       // compute the intersection...
-                            rucksack.takeRight(rucksack.length / 2)         // with the right compartment
+                          intersect                                         // compute the intersection...
+                          rucksack.takeRight(rucksack.length / 2)           // with the right compartment
                         )(0)  - 'A' + 'z' - 'a' + 1) % ('z' - 'A' + 1) + 1  // get the item and compute its priority
                     }
                 )
@@ -122,7 +125,7 @@ object Main {
                 .sliding(n, n)                                              // split rucksacks (lines) by desired group size
                 .foldLeft(0)(                                               // initialize partial sum to 0
                     (sum: Int, sacks: Seq[String]) => {                     // given partial sum and current group
-                        sum +  (                                            // add 1 to partial sum
+                        sum + (                                             // add 1 to partial sum
                           sacks.foldLeft(('A' to 'z').mkString)(      // within the group, initialize partial list of shared items
                               (shared: String, rucksack: String) =>         // given the partial list of shared items and a rucksack
                                   shared intersect rucksack                 // compute the intersection of partial shared items and the rucksack
@@ -130,6 +133,43 @@ object Main {
                     }
                 )
         }.get                                                               // get final result
+    }
+
+
+    /**
+     * Day 4 part 1: Find the number of assignment pairs where range fully contains the other
+     * @param path path to input file
+     * @return number of fully contained assignment pairs
+     */
+    def day4part1(path: String): Int = {
+        Using(Source.fromFile(path)) { data =>                      // load input data file
+            data.getLines()                                         // for each line in file
+                .map(x => x.split("[-,]")                    // split string to numeric values
+                           .map(y => y.toInt))                      // convert strings to integers
+                .count(values => (                                  // count the number of pairs where...
+                  values(0) >= values(2) && values(1) <= values(3)  // first range is entirely within the second range...
+                  ) || (                                            // OR...
+                  values(0) <= values(2) && values(1) >= values(3)  // second range is entirely within the first range
+                  )
+                )
+        }.get                                                       // get final result
+    }
+
+
+    /**
+     * Day 4 part 2: Find the number of assignment pairs that overlap at all
+     * @param path path to input file
+     * @return number of overlapping assignment pairs
+     */
+    def day4part2(path: String): Int = {
+        Using(Source.fromFile(path)) { data =>                          // load input data file
+            data.getLines()                                             // for each line in file
+                .map(x => x.split("[-,]")                        // split string to numeric values
+                           .map(y => y.toInt))                          // convert strings to integers
+                .count(values =>                                        // count the number of pairs where...
+                    !(values(0) > values(3) || values(1) < values(2))   // the ranges are NOT exclusive
+                )
+        }.get                                                           // get final result
     }
 
 
@@ -143,5 +183,8 @@ object Main {
 
         println("Day 3 part 1: " + day3part1("./in/day3.txt"))
         println("Day 3 part 2: " + day3part2("./in/day3.txt", 3))
+
+        println("Day 4 part 1: " + day4part1("./in/day4.txt"))
+        println("Day 4 part 2: " + day4part2("./in/day4.txt"))
     }
 }
