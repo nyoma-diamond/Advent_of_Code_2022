@@ -2,11 +2,10 @@ import scala.collection.mutable
 import scala.io.Source
 import scala.language.implicitConversions
 import scala.util.Using
-import scala.util.control.Breaks.break
 
 object Main {
 
-    // This allows me to treat booleans as integers, which is convenient for some math
+    // This allows me to treat booleans as integers (0 or 1), which is convenient for some math
     implicit def bool2int(b:Boolean): Int = if (b) 1 else 0
 
     /**
@@ -224,6 +223,22 @@ object Main {
     }
 
 
+    /**
+     * Day 6 (both parts): Find the number of characters before the packet starts
+     *
+     * @param path path to input file
+     * @param n    size of start-of-packet marker
+     * @return number of characters before the packet starts
+     */
+    def day6(path: String, n: Int): Int = {
+        Using(Source.fromFile(path)) { data =>      // load input data file
+            data.sliding(n)                         // using a sliding window the size of the start-of-packet marker (n)
+                .takeWhile(_.distinct.size != n)    // take elements until the number of distinct characters = n (start-of-packet marker found!)
+                .size + n                           // get number of windows before marker was found + size of marker
+        }.get                                       // get final result
+    }
+
+
     def main(args: Array[String]): Unit = {
         println("Day 1 part 1: " + day1Part1("./in/day1.txt"))
         println("Day 1 part 2: " + day1Part2("./in/day1.txt", 3))
@@ -240,5 +255,8 @@ object Main {
 
         println("Day 5 part 1: " + day5("./in/day5.txt"))
         println("Day 5 part 2: " + day5("./in/day5.txt", part2 = true))
+
+        println("Day 6 part 1: " + day6("./in/day6.txt", 4))
+        println("Day 6 part 2: " + day6("./in/day6.txt", 14))
     }
 }
