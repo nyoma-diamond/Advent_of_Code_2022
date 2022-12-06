@@ -1,6 +1,8 @@
+import scala.collection.mutable
 import scala.io.Source
 import scala.language.implicitConversions
 import scala.util.Using
+import scala.util.control.Breaks.break
 
 object Main {
 
@@ -138,6 +140,7 @@ object Main {
 
     /**
      * Day 4 part 1: Find the number of assignment pairs where range fully contains the other
+     *
      * @param path path to input file
      * @return number of fully contained assignment pairs
      */
@@ -145,7 +148,7 @@ object Main {
         Using(Source.fromFile(path)) { data =>                      // load input data file
             data.getLines()                                         // for each line in file
                 .map(x => x.split("[-,]")                    // split string to numeric values
-                           .map(y => y.toInt))                      // convert strings to integers
+                           .map(_.toInt))                           // convert strings to integers
                 .count(values => (                                  // count the number of pairs where...
                   values(0) >= values(2) && values(1) <= values(3)  // first range is entirely within the second range...
                   ) || (                                            // OR...
@@ -158,6 +161,7 @@ object Main {
 
     /**
      * Day 4 part 2: Find the number of assignment pairs that overlap at all
+     *
      * @param path path to input file
      * @return number of overlapping assignment pairs
      */
@@ -165,11 +169,58 @@ object Main {
         Using(Source.fromFile(path)) { data =>                          // load input data file
             data.getLines()                                             // for each line in file
                 .map(x => x.split("[-,]")                        // split string to numeric values
-                           .map(y => y.toInt))                          // convert strings to integers
+                           .map(_.toInt))                               // convert strings to integers
                 .count(values =>                                        // count the number of pairs where...
                     !(values(0) > values(3) || values(1) < values(2))   // the ranges are NOT exclusive
                 )
         }.get                                                           // get final result
+    }
+
+
+    /**
+     * Day 5 (both parts): Move crates following specified instructions and find the top crate of the resulting stacks
+     *
+     * @param path  path to input file
+     * @param part2 option to do part 2 instead of part 1
+     * @return crates at the top of the stacks
+     */
+    def day5(path: String, part2: Boolean = false): String = {
+        Using(Source.fromFile(path)) { data => {                                    // load input data file
+            val parts = data.getLines().span(x => x.nonEmpty)                       // separate initial stack setup from instructions
+
+            val setup = parts._1.toSeq.reverseIterator                              // get and reverse stack setup lines (going top to bottom is easier)
+            val stacks = Seq.fill(setup.next.max.asDigit)(mutable.Stack[Char]())    // initialize sequence of crate stacks (also moves the setup one line)
+
+            setup.foreach(line =>                                                   // for each setup line
+                 line.sliding(4, 4)                                                 // generate a 4-wide sliding window (each will have a crate at index 1)
+                     .zipWithIndex                                                  // combine crate with associated stack number
+                     .foreach(crate =>                                              // for each crate (window)
+                         if (crate._1(1) != ' ')                                    // if a crate is present
+                             stacks(crate._2).push(crate._1(1))                     // push crate onto corresponding stack
+                     )
+            )
+
+            parts._2                                                                // using the crate moavement instructions
+                 .drop(1)                                                           // ignore the first row (its empty)
+                 .foreach(line => {                                                 // for each instruction
+                     val action = """\d+""".r.findAllIn(line).map(_.toInt).toSeq    // get (ordered) numeric values in instructions
+                     var i = 0                                                      // initialize counter to 0
+
+                     var crates = stacks(action(1) - 1).popWhile(_ => {             // pull crates from the desired stack while...
+                         i += 1                                                     // incremented counter...
+                         i <= action(0)                                             // ...is less than the desired count
+                     })
+
+                     if (part2) crates = crates.reverse                             // if finding part 2 solution, reverse the order of the moved crates
+
+                     stacks(action(2)-1).pushAll(crates)                            // put crates on desired stack
+                 })
+
+            stacks.foldLeft("")(                                                    // initialize partial solution to empty string
+                (str: String, stack: mutable.Stack[Char]) =>                        // given the partial solution and a stack
+                    str + stack.pop()                                               // add the top of the stack to the solution
+            )
+        }}.get                                                                      // get final result
     }
 
 
@@ -186,5 +237,8 @@ object Main {
 
         println("Day 4 part 1: " + day4part1("./in/day4.txt"))
         println("Day 4 part 2: " + day4part2("./in/day4.txt"))
+
+        println("Day 5 part 1: " + day5("./in/day5.txt"))
+        println("Day 5 part 2: " + day5("./in/day5.txt", part2 = true))
     }
 }
