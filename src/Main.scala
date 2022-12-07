@@ -199,7 +199,7 @@ object Main {
                      )
             )
 
-            parts._2                                                                // using the crate moavement instructions
+            parts._2                                                                // using the crate movement instructions
                  .drop(1)                                                           // ignore the first row (its empty)
                  .foreach(line => {                                                 // for each instruction
                      val action = """\d+""".r.findAllIn(line).map(_.toInt).toSeq    // get (ordered) numeric values in instructions
