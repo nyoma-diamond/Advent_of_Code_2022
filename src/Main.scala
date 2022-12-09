@@ -282,7 +282,7 @@ object Main {
 
 
     /**
-     * Day 7 part 2: Find size of smallest directory whose deletion creates a total of 30000000 free [generic memory units]
+     * Day 7 part 2: Find size of smallest directory whose deletion creates a total of 30000000 free [generic memory units] out of 70000000
      *
      * @param path path to input file
      * @return minimum directory size
@@ -321,7 +321,7 @@ object Main {
                     (partial._1 + dir_size,                                                         // add size of this directory to the set
                      dir_size)                                                                      // pass up size of this directory
                 })._1                                                                               // get directory size set
-                .minAfter(values._1 - 40000000)                                                     // find the minimum value large enough to give us 30000000 free [generic memory units]
+                .minAfter(values._1 + 30000000 - 70000000)                                          // find the minimum value large enough to give us 30000000 free [generic memory units] out of 70000000
                 .get                                                                                // get final result
         }.get
     }
