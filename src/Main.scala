@@ -203,7 +203,7 @@ object Main {
             parts._2                                                                // using the crate movement instructions
                  .drop(1)                                                           // ignore the first row (its empty)
                  .foreach(line => {                                                 // for each instruction
-                     val action = """\d+""".r.findAllIn(line).map(_.toInt).toSeq    // get (ordered) numeric values in instructions
+                     val action = """\d+""".r.findAllIn(line).map(_.toInt).toVector // get (ordered) numeric values in instructions
                      var i = 0                                                      // initialize counter to 0
 
                      var crates = stacks(action(1) - 1).popWhile(_ => {             // pull crates from the desired stack while...
@@ -327,6 +327,12 @@ object Main {
     }
 
 
+    /**
+     * Day 8 part 1: Find the number of trees that are visible from outside the grid
+     *
+     * @param path path to input file
+     * @return number of visible trees
+     */
     def day8part1(path: String): Int = {
         def getVisibleInLine(line: Seq[Char]): Seq[Boolean] = {
             var visible = Seq.fill[Boolean](line.length)(false)             // initialize list of tree visibilities
@@ -356,9 +362,6 @@ object Main {
                       .count(visibility => visibility._1 || visibility._2)  // count trees that are visible
         }.get                                                               // get final result
     }
-
-
-
 
 
     def main(args: Array[String]): Unit = {
