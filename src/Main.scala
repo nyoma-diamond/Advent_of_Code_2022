@@ -124,7 +124,7 @@ object Main {
     def day3part2(path: String, n: Int): Int = {
         Using(Source.fromFile(path)) { data =>                              // load input data file
             data.getLines()                                                 // for each line in file
-                .sliding(n, n)                                              // split rucksacks (lines) by desired group size
+                .grouped(n)                                                 // split rucksacks (lines) by desired group size
                 .foldLeft(0)(                                               // initialize partial sum to 0
                     (sum: Int, sacks: Seq[String]) => {                     // given partial sum and current group
                         sum + (                                             // add 1 to partial sum
@@ -192,7 +192,7 @@ object Main {
             val stacks = Seq.fill(setup.next.max.asDigit)(mutable.Stack[Char]())    // initialize sequence of crate stacks (also moves the setup one line)
 
             setup.foreach(line =>                                                   // for each setup line
-                 line.sliding(4, 4)                                                 // generate a 4-wide sliding window (each will have a crate at index 1)
+                 line.grouped(4)                                                    // generate 4-wide groupings (each will have a crate at index 1)
                      .zipWithIndex                                                  // combine crate with associated stack number
                      .foreach(crate =>                                              // for each crate (window)
                          if (crate._1(1) != ' ')                                    // if a crate is present
