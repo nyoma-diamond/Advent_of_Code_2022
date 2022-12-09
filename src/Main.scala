@@ -17,7 +17,7 @@ object Main {
      */
     def day1Part1(path: String): Int = {
         Using(Source.fromFile(path)) { data =>                          // load input data file
-            data.getLines()                                             // for each line in file
+            data.getLines                                               // for each line in file
                 .foldLeft(List.fill(2)(0))(                             // initialize partial solution List to [0,0] (running sum, running maximum)
                     (partial: List[Int], cur: String) =>                // given partial solution and current line
                         if (cur.nonEmpty)                               // if current line is not empty (it's a value)
@@ -39,7 +39,7 @@ object Main {
      */
     def day1Part2(path: String, n: Int): Int = {
         Using(Source.fromFile(path)) { data =>                                                      // load input data file
-            (data.getLines() ++ Seq(""))                                                            // for each line in file (adds an extra empty line so the maximums get updated for the final sum)
+            (data.getLines ++ Seq(""))                                                              // for each line in file (adds an extra empty line so the maximums get updated for the final sum)
                  .foldLeft(List.fill(n + 1)(0))(                                                    // initialize partial solution List (first item is running sum, last n items are running maximums)
                     (partial: List[Int], cur: String) =>                                            // given partial solution and current line
                         if (cur.nonEmpty)                                                           // if current line is not empty (it's a value)
@@ -60,7 +60,7 @@ object Main {
      */
     def day2part1(path: String): Int = {
         Using(Source.fromFile(path)) { data =>              // load input data file
-            data.getLines()                                 // for each line in file
+            data.getLines                                   // for each line in file
                 .foldLeft(0)(                               // initialize partial score to 0
                     (score: Int, cur: String) =>            // given partial score and current line
                         score +                             // add to partial score
@@ -80,7 +80,7 @@ object Main {
      */
     def day2part2(path: String): Int = {
      Using(Source.fromFile(path)) { data =>                 // load input data file
-            data.getLines()                                 // for each line in file
+            data.getLines                                   // for each line in file
                 .foldLeft(0)(                               // initialize partial score to 0
                     (score: Int, cur: String) =>            // given partial score and current line
                         score +                             // add to partial score
@@ -99,7 +99,7 @@ object Main {
      */
     def day3part1(path: String): Int = {
         Using(Source.fromFile(path)) { data =>                              // load input data file
-            data.getLines()                                                 // for each line in file
+            data.getLines                                                   // for each line in file
                 .foldLeft(0)(                                               // initialize partial sum to 0
                     (sum: Int, rucksack: String) => {                       // given partial sum and current rucksack (line)
                         sum + ((                                            // add priority of shared item (found below) to partial sum
@@ -123,7 +123,7 @@ object Main {
      */
     def day3part2(path: String, n: Int): Int = {
         Using(Source.fromFile(path)) { data =>                              // load input data file
-            data.getLines()                                                 // for each line in file
+            data.getLines                                                   // for each line in file
                 .grouped(n)                                                 // split rucksacks (lines) by desired group size
                 .foldLeft(0)(                                               // initialize partial sum to 0
                     (sum: Int, sacks: Seq[String]) => {                     // given partial sum and current group
@@ -146,7 +146,7 @@ object Main {
      */
     def day4part1(path: String): Int = {
         Using(Source.fromFile(path)) { data =>                      // load input data file
-            data.getLines()                                         // for each line in file
+            data.getLines                                           // for each line in file
                 .map(x => x.split("[-,]")                           // split string to numeric values
                            .map(_.toInt))                           // convert strings to integers
                 .count(values => (                                  // count the number of pairs where...
@@ -167,7 +167,7 @@ object Main {
      */
     def day4part2(path: String): Int = {
         Using(Source.fromFile(path)) { data =>                          // load input data file
-            data.getLines()                                             // for each line in file
+            data.getLines                                               // for each line in file
                 .map(x => x.split("[-,]")                               // split string to numeric values
                            .map(_.toInt))                               // convert strings to integers
                 .count(values =>                                        // count the number of pairs where...
@@ -186,7 +186,7 @@ object Main {
      */
     def day5(path: String, part2: Boolean = false): String = {
         Using(Source.fromFile(path)) { data => {                                    // load input data file
-            val parts = data.getLines().span(x => x.nonEmpty)                       // separate initial stack setup from instructions
+            val parts = data.getLines.span(x => x.nonEmpty)                         // separate initial stack setup from instructions
 
             val setup = parts._1.toSeq.reverseIterator                              // get and reverse stack setup lines (going top to bottom is easier)
             val stacks = Seq.fill(setup.next.max.asDigit)(mutable.Stack[Char]())    // initialize sequence of crate stacks (also moves the setup one line)
@@ -218,7 +218,7 @@ object Main {
 
             stacks.foldLeft("")(                                                    // initialize partial solution to empty string
                 (str: String, stack: mutable.Stack[Char]) =>                        // given the partial solution and a stack
-                    str + stack.pop()                                               // add the top of the stack to the solution
+                    str + stack.pop                                                 // add the top of the stack to the solution
             )
         }}.get                                                                      // get final result
     }
@@ -248,7 +248,7 @@ object Main {
      */
     def day7part1(path: String): Int = {
         Using(Source.fromFile(path)) { data =>                                                  // load input data file
-            val values = data.getLines()                                                        // for each line in file
+            val values = data.getLines                                                          // for each line in file
                             .foldLeft((0, 0, List[Int]()))(                                     // intialize partial solution to tuple (sum of directory sizes < 100000 | current directory size | directory queue)
                                 (partial: (Int, Int, List[Int]), cur: String) => {              // given partial solution and current line
                                     if (cur(0).isDigit) {                                       // if the line is a file (has numeric size)
@@ -289,7 +289,7 @@ object Main {
      */
     def day7part2(path: String): Int = {
         Using(Source.fromFile(path)) { data =>                                                      // load input data file
-            val values = data.getLines()                                                            // for each line in file
+            val values = data.getLines                                                              // for each line in file
                             .foldLeft((0, 0, List[Int](), TreeSet[Int]()))(                         // intialize partial solution to tuple (total memory usage | current directory size | directory queue | set of directory sizes)
                                 (partial: (Int, Int, List[Int], TreeSet[Int]), cur: String) => {    // given partial solution and current line
                                     if (cur(0).isDigit) {                                           // if the line is a file (has numeric size)
@@ -327,6 +327,40 @@ object Main {
     }
 
 
+    def day8part1(path: String): Int = {
+        def getVisibleInLine(line: Seq[Char]): Seq[Boolean] = {
+            var visible = Seq.fill[Boolean](line.length)(false)             // initialize list of tree visibilities
+            var left_max, right_max = -1                                    // initialize directional maximums
+            for (i <- line.indices) {                                       // from 0 to the number of trees in the line
+                if (line(i).toInt > left_max) {                             // if tree i from the left is taller than the left max
+                    left_max = line(i).toInt                                // update left max
+                    visible = visible.updated(i, true)                      // set visibility of the tree to true
+                }
+                if (line(line.length - i - 1).toInt > right_max) {          // if tree i from the right is taller than the right max
+                    right_max = line(line.length - i -1).toInt              // update right max
+                    visible = visible.updated(line.length - i - 1, true)    // set visibility of the tree to true
+                }
+            }
+            visible                                                         // return visibility list
+        }
+
+        Using(Source.fromFile(path)) { data =>                              // load input data file
+            val (rows, columns) = data.getLines.duplicate                   // duplicate data
+
+            rows.flatMap(getVisibleInLine(_))                               // get row-wise visibility & make sequential
+                      .zip(columns.toSeq                                    // zip with column-wise visibility
+                                  .transpose                                // columns acquired by transposing the data
+                                  .map(getVisibleInLine)                    // get column-wise visibility
+                                  .transpose                                // transpose back so trees line up
+                                  .flatten)                                 // make sequential for zipping with rows
+                      .count(visibility => visibility._1 || visibility._2)  // count trees that are visible
+        }.get                                                               // get final result
+    }
+
+
+
+
+
     def main(args: Array[String]): Unit = {
         println("Day 1 part 1: " + day1Part1("./in/day1.txt"))
         println("Day 1 part 2: " + day1Part2("./in/day1.txt", 3))
@@ -349,5 +383,7 @@ object Main {
 
         println("Day 7 part 1: " + day7part1("./in/day7.txt"))
         println("Day 7 part 2: " + day7part2("./in/day7.txt"))
+
+        println("Day 8 part 1: " + day8part1("./in/day8.txt"))
     }
 }
