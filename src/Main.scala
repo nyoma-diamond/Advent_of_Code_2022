@@ -1,3 +1,4 @@
+import scala.collection.immutable.TreeSet
 import scala.collection.mutable
 import scala.io.Source
 import scala.language.implicitConversions
@@ -127,7 +128,7 @@ object Main {
                 .foldLeft(0)(                                               // initialize partial sum to 0
                     (sum: Int, sacks: Seq[String]) => {                     // given partial sum and current group
                         sum + (                                             // add 1 to partial sum
-                          sacks.foldLeft(('A' to 'z').mkString)(      // within the group, initialize partial list of shared items
+                          sacks.foldLeft(('A' to 'z').mkString)(            // within the group, initialize partial list of shared items
                               (shared: String, rucksack: String) =>         // given the partial list of shared items and a rucksack
                                   shared intersect rucksack                 // compute the intersection of partial shared items and the rucksack
                           )(0) - 'A' + 'z' - 'a' + 1) % ('z' - 'A' + 1) + 1 // get the badge and compute its priority
@@ -146,7 +147,7 @@ object Main {
     def day4part1(path: String): Int = {
         Using(Source.fromFile(path)) { data =>                      // load input data file
             data.getLines()                                         // for each line in file
-                .map(x => x.split("[-,]")                    // split string to numeric values
+                .map(x => x.split("[-,]")                           // split string to numeric values
                            .map(_.toInt))                           // convert strings to integers
                 .count(values => (                                  // count the number of pairs where...
                   values(0) >= values(2) && values(1) <= values(3)  // first range is entirely within the second range...
@@ -167,7 +168,7 @@ object Main {
     def day4part2(path: String): Int = {
         Using(Source.fromFile(path)) { data =>                          // load input data file
             data.getLines()                                             // for each line in file
-                .map(x => x.split("[-,]")                        // split string to numeric values
+                .map(x => x.split("[-,]")                               // split string to numeric values
                            .map(_.toInt))                               // convert strings to integers
                 .count(values =>                                        // count the number of pairs where...
                     !(values(0) > values(3) || values(1) < values(2))   // the ranges are NOT exclusive
@@ -239,6 +240,93 @@ object Main {
     }
 
 
+    /**
+     * Day 7 part 1: Find sum of directory sizes
+     *
+     * @param path path to input file
+     * @return sum of directory sizes
+     */
+    def day7part1(path: String): Int = {
+        Using(Source.fromFile(path)) { data =>                                                  // load input data file
+            val values = data.getLines()                                                        // for each line in file
+                            .foldLeft((0, 0, List[Int]()))(                                     // intialize partial solution to tuple (sum of directory sizes < 100000 | current directory size | directory queue)
+                                (partial: (Int, Int, List[Int]), cur: String) => {              // given partial solution and current line
+                                    if (cur(0).isDigit) {                                       // if the line is a file (has numeric size)
+                                        (partial._1,                                            // sum of directory sizes unchanged
+                                         partial._2 + cur.takeWhile(_ != ' ').toInt,            // add file size to current directory size
+                                         partial._3)                                            // directory queue unchanged
+                                    } else if (cur.take(4) == "$ cd") {                         // directory change
+                                        if (cur.substring(5) == "..") {                         // exiting a directory
+                                            (partial._1 + partial._2 * (partial._2 < 100000),   // add size of directory we are leaving to total if < 100000
+                                             partial._3.head + partial._2,                      // set current directory size to head of directory queue + size of directory we are exiting
+                                             partial._3.tail)                                   // remove directory we are going up to from the queue
+                                        } else {                                                // not exiting, therefore entering a new directory
+                                            (partial._1,                                        // sum of directory sizes unchanged
+                                             0,                                                 // new directory -> set directory size to 0
+                                             partial._2 :: partial._3)                          // add parent directory to queue
+                                        }
+                                    } else {                                                    // dir or `$ ls`, we can ignore
+                                        partial                                                 // pass running solution forward
+                                    }
+                                }
+                            )
+
+            (values._2 :: values._3).foldLeft((values._1, 0))(                                  // fold on remaining directories, initialize partial solution to tuple (sum of directory sizes < 100000 | current directory size)
+                  (partial: (Int, Int), cur: Int) => {                                          // given partial solution and current observed directory size
+                      val dir_size = cur + partial._2                                           // size of this directory = observed size + previous directory size
+                      (partial._1 + dir_size * (dir_size < 100000),                             // add size of this directory to total if < 100000
+                       dir_size)                                                                // pass up size of this directory
+                  })._1                                                                         // get total from tuple output
+        }.get                                                                                   // get final result
+    }
+
+
+    /**
+     * Day 7 part 2: Find size of smallest directory whose deletion creates a total of 30000000 free [generic memory units]
+     *
+     * @param path path to input file
+     * @return minimum directory size
+     */
+    def day7part2(path: String): Int = {
+        Using(Source.fromFile(path)) { data =>                                                      // load input data file
+            val values = data.getLines()                                                            // for each line in file
+                            .foldLeft((0, 0, List[Int](), TreeSet[Int]()))(                         // intialize partial solution to tuple (total memory usage | current directory size | directory queue | set of directory sizes)
+                                (partial: (Int, Int, List[Int], TreeSet[Int]), cur: String) => {    // given partial solution and current line
+                                    if (cur(0).isDigit) {                                           // if the line is a file (has numeric size)
+                                        (partial._1 + cur.takeWhile(_ != ' ').toInt,                // add file size to total memory usage
+                                         partial._2 + cur.takeWhile(_ != ' ').toInt,                // add file size to current directory's size
+                                         partial._3,                                                // directory queue unchanged
+                                         partial._4)                                                // directory size set unchanged
+                                    } else if (cur.take(4) == "$ cd") {                             // directory change
+                                        if (cur.substring(5) == "..") {                             // exiting a directory
+                                            (partial._1,                                            // total memory usage unchanged
+                                             partial._3.head + partial._2,                          // set current directory size to head of directory queue + size of directory we are exiting
+                                             partial._3.tail,                                       // remove directory we are going up to from the queue
+                                             partial._4 + partial._2)                               // add current directory size to directory size set
+                                        } else {                                                    // not exiting, therefore entering a new directory
+                                            (partial._1,                                            // total memory usage unchanged
+                                             0,                                                     // new directory -> set directory size to 0
+                                             partial._2 :: partial._3,                              // add parent directory to queue
+                                             partial._4)                                            // directory size set unchanged
+                                        }
+                                    } else {                                                        // dir or `$ ls`, we can ignore
+                                        partial                                                     // pass running solution forward
+                                    }
+                                }
+                            )
+
+            (values._2 :: values._3).foldLeft((values._4, 0))(                                      // fold on remaining directories, initialize partial solution to tuple (set of directory sizes | current directory size)
+                (partial: (TreeSet[Int], Int), cur: Int) => {                                       // given partial solution and current observed directory size
+                    val dir_size = cur + partial._2                                                 // size of this directory = observed size + previous directory size
+                    (partial._1 + dir_size,                                                         // add size of this directory to the set
+                     dir_size)                                                                      // pass up size of this directory
+                })._1                                                                               // get directory size set
+                .minAfter(values._1 - 40000000)                                                     // find the minimum value large enough to give us 30000000 free [generic memory units]
+                .get                                                                                // get final result
+        }.get
+    }
+
+
     def main(args: Array[String]): Unit = {
         println("Day 1 part 1: " + day1Part1("./in/day1.txt"))
         println("Day 1 part 2: " + day1Part2("./in/day1.txt", 3))
@@ -258,5 +346,8 @@ object Main {
 
         println("Day 6 part 1: " + day6("./in/day6.txt", 4))
         println("Day 6 part 2: " + day6("./in/day6.txt", 14))
+
+        println("Day 7 part 1: " + day7part1("./in/day7.txt"))
+        println("Day 7 part 2: " + day7part2("./in/day7.txt"))
     }
 }
