@@ -249,25 +249,25 @@ object Main {
     def day7part1(path: String): Int = {
         Using(Source.fromFile(path)) { data =>                                                  // load input data file
             val values = data.getLines                                                          // for each line in file
-                            .foldLeft((0, 0, List[Int]()))(                                     // intialize partial solution to tuple (sum of directory sizes < 100000 | current directory size | directory queue)
-                                (partial: (Int, Int, List[Int]), cur: String) => {              // given partial solution and current line
-                                    if (cur(0).isDigit) {                                       // if the line is a file (has numeric size)
-                                        (partial._1,                                            // sum of directory sizes unchanged
-                                         partial._2 + cur.takeWhile(_ != ' ').toInt,            // add file size to current directory size
-                                         partial._3)                                            // directory queue unchanged
-                                    } else if (cur.take(4) == "$ cd") {                         // directory change
-                                        if (cur.substring(5) == "..") {                         // exiting a directory
-                                            (partial._1 + partial._2 * (partial._2 < 100000),   // add size of directory we are leaving to total if < 100000
-                                             partial._3.head + partial._2,                      // set current directory size to head of directory queue + size of directory we are exiting
-                                             partial._3.tail)                                   // remove directory we are going up to from the queue
-                                        } else {                                                // not exiting, therefore entering a new directory
-                                            (partial._1,                                        // sum of directory sizes unchanged
-                                             0,                                                 // new directory -> set directory size to 0
-                                             partial._2 :: partial._3)                          // add parent directory to queue
-                                        }
-                                    } else {                                                    // dir or `$ ls`, we can ignore
-                                        partial                                                 // pass running solution forward
-                                    }
+                             .foldLeft((0, 0, List[Int]()))(                                    // intialize partial solution to tuple (sum of directory sizes < 100000 | current directory size | directory queue)
+                                 (partial: (Int, Int, List[Int]), cur: String) => {             // given partial solution and current line
+                                     if (cur(0).isDigit) {                                      // if the line is a file (has numeric size)
+                                         (partial._1,                                           // sum of directory sizes unchanged
+                                          partial._2 + cur.takeWhile(_ != ' ').toInt,           // add file size to current directory size
+                                          partial._3)                                           // directory queue unchanged
+                                     } else if (cur.take(4) == "$ cd") {                        // directory change
+                                         if (cur.substring(5) == "..") {                        // exiting a directory
+                                             (partial._1 + partial._2 * (partial._2 < 100000),  // add size of directory we are leaving to total if < 100000
+                                              partial._3.head + partial._2,                     // set current directory size to head of directory queue + size of directory we are exiting
+                                              partial._3.tail)                                  // remove directory we are going up to from the queue
+                                         } else {                                               // not exiting, therefore entering a new directory
+                                             (partial._1,                                       // sum of directory sizes unchanged
+                                              0,                                                // new directory -> set directory size to 0
+                                              partial._2 :: partial._3)                         // add parent directory to queue
+                                         }
+                                     } else {                                                   // dir or `$ ls`, we can ignore
+                                         partial                                                // pass running solution forward
+                                     }
                                 }
                             )
 
@@ -290,28 +290,28 @@ object Main {
     def day7part2(path: String): Int = {
         Using(Source.fromFile(path)) { data =>                                                      // load input data file
             val values = data.getLines                                                              // for each line in file
-                            .foldLeft((0, 0, List[Int](), TreeSet[Int]()))(                         // intialize partial solution to tuple (total memory usage | current directory size | directory queue | set of directory sizes)
-                                (partial: (Int, Int, List[Int], TreeSet[Int]), cur: String) => {    // given partial solution and current line
-                                    if (cur(0).isDigit) {                                           // if the line is a file (has numeric size)
-                                        (partial._1 + cur.takeWhile(_ != ' ').toInt,                // add file size to total memory usage
-                                         partial._2 + cur.takeWhile(_ != ' ').toInt,                // add file size to current directory's size
-                                         partial._3,                                                // directory queue unchanged
-                                         partial._4)                                                // directory size set unchanged
-                                    } else if (cur.take(4) == "$ cd") {                             // directory change
-                                        if (cur.substring(5) == "..") {                             // exiting a directory
-                                            (partial._1,                                            // total memory usage unchanged
-                                             partial._3.head + partial._2,                          // set current directory size to head of directory queue + size of directory we are exiting
-                                             partial._3.tail,                                       // remove directory we are going up to from the queue
-                                             partial._4 + partial._2)                               // add current directory size to directory size set
-                                        } else {                                                    // not exiting, therefore entering a new directory
-                                            (partial._1,                                            // total memory usage unchanged
-                                             0,                                                     // new directory -> set directory size to 0
-                                             partial._2 :: partial._3,                              // add parent directory to queue
-                                             partial._4)                                            // directory size set unchanged
-                                        }
-                                    } else {                                                        // dir or `$ ls`, we can ignore
-                                        partial                                                     // pass running solution forward
-                                    }
+                             .foldLeft((0, 0, List[Int](), TreeSet[Int]()))(                        // intialize partial solution to tuple (total memory usage | current directory size | directory queue | set of directory sizes)
+                                 (partial: (Int, Int, List[Int], TreeSet[Int]), cur: String) => {   // given partial solution and current line
+                                     if (cur(0).isDigit) {                                          // if the line is a file (has numeric size)
+                                         (partial._1 + cur.takeWhile(_ != ' ').toInt,               // add file size to total memory usage
+                                          partial._2 + cur.takeWhile(_ != ' ').toInt,               // add file size to current directory's size
+                                          partial._3,                                               // directory queue unchanged
+                                          partial._4)                                               // directory size set unchanged
+                                     } else if (cur.take(4) == "$ cd") {                            // directory change
+                                         if (cur.substring(5) == "..") {                            // exiting a directory
+                                             (partial._1,                                           // total memory usage unchanged
+                                              partial._3.head + partial._2,                         // set current directory size to head of directory queue + size of directory we are exiting
+                                              partial._3.tail,                                      // remove directory we are going up to from the queue
+                                              partial._4 + partial._2)                              // add current directory size to directory size set
+                                         } else {                                                   // not exiting, therefore entering a new directory
+                                             (partial._1,                                           // total memory usage unchanged
+                                              0,                                                    // new directory -> set directory size to 0
+                                              partial._2 :: partial._3,                             // add parent directory to queue
+                                              partial._4)                                           // directory size set unchanged
+                                         }
+                                     } else {                                                       // dir or `$ ls`, we can ignore
+                                         partial                                                    // pass running solution forward
+                                     }
                                 }
                             )
 
