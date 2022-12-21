@@ -364,6 +364,50 @@ object Main {
     }
 
 
+    def day8part2(path: String): Int = {
+        def getScoresInLine(line: Seq[Char]): Seq[Int] = {
+            var scores = Seq.fill(line.length)(1)
+            var leftScores, rightScores = Seq.fill(10)(0)
+
+//            println(line.mkString(","))
+            for (il <- line.indices) {
+                val ir = line.length - il - 1
+
+                if (line(il).asDigit == 0) {
+                    scores = scores.updated(il, 0)
+                } else {
+                    scores = scores.updated(il, scores(il) * leftScores(line(il).asDigit))
+                    leftScores = Seq.fill(line(il).asDigit)(1) ++ leftScores.drop(line(il).asDigit).map(_+1)
+                }
+
+                if (line(ir).asDigit == 0) {
+                    scores = scores.updated(ir, 0)
+                } else {
+                    scores = scores.updated(ir, scores(ir) * leftScores(line(ir).asDigit))
+                    rightScores = Seq.fill(line(ir).asDigit)(1) ++ rightScores.drop(line(ir).asDigit).map(_ + 1)
+                }
+
+//                println(leftScores)
+            }
+
+            scores
+        }
+
+        val scenicScore = Using(Source.fromFile(path)) { data =>
+            val (rows, columns) = data.getLines.duplicate
+
+            rows.flatMap(getScoresInLine(_))
+                .zip(columns.toSeq
+                            .transpose
+                            .map(getScoresInLine)
+                            .transpose
+                            .flatten)
+                .maxBy(scores => scores._1 * scores._2)
+        }.get
+
+        scenicScore._1 * scenicScore._2
+    }
+
     def main(args: Array[String]): Unit = {
         println("Day 1 part 1: " + day1Part1("./in/day1.txt"))
         println("Day 1 part 2: " + day1Part2("./in/day1.txt", 3))
@@ -388,5 +432,6 @@ object Main {
         println("Day 7 part 2: " + day7part2("./in/day7.txt"))
 
         println("Day 8 part 1: " + day8part1("./in/day8.txt"))
+        println("Day 8 part 2: " + day8part2("./in/day8.txt"))
     }
 }
