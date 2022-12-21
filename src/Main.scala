@@ -335,15 +335,15 @@ object Main {
      */
     def day8part1(path: String): Int = {
         def getVisibleInLine(line: Seq[Char]): Seq[Boolean] = {
-            var visible = Seq.fill[Boolean](line.length)(false)             // initialize list of tree visibilities
+            var visible = Seq.fill(line.length)(false)                      // initialize list of tree visibilities
             var left_max, right_max = -1                                    // initialize directional maximums
             for (i <- line.indices) {                                       // from 0 to the number of trees in the line
-                if (line(i).toInt > left_max) {                             // if tree i from the left is taller than the left max
-                    left_max = line(i).toInt                                // update left max
+                if (line(i).asDigit > left_max) {                           // if tree i from the left is taller than the left max
+                    left_max = line(i).asDigit                              // update left max
                     visible = visible.updated(i, true)                      // set visibility of the tree to true
                 }
-                if (line(line.length - i - 1).toInt > right_max) {          // if tree i from the right is taller than the right max
-                    right_max = line(line.length - i -1).toInt              // update right max
+                if (line(line.length - i - 1).asDigit > right_max) {        // if tree i from the right is taller than the right max
+                    right_max = line(line.length - i - 1).asDigit           // update right max
                     visible = visible.updated(line.length - i - 1, true)    // set visibility of the tree to true
                 }
             }
