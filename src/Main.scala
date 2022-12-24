@@ -249,7 +249,7 @@ object Main {
     def day7part1(path: String): Int = {
         Using(Source.fromFile(path)) { data =>                                                  // load input data file
             val values = data.getLines                                                          // for each line in file
-                             .foldLeft((0, 0, List[Int]()))(                                    // intialize partial solution to tuple (sum of directory sizes < 100000 | current directory size | directory queue)
+                             .foldLeft((0, 0, List[Int]()))(                                    // initialize partial solution to tuple (sum of directory sizes < 100000 | current directory size | directory queue)
                                  (partial: (Int, Int, List[Int]), cur: String) => {             // given partial solution and current line
                                      if (cur(0).isDigit) {                                      // if the line is a file (has numeric size)
                                          (partial._1,                                           // sum of directory sizes unchanged
