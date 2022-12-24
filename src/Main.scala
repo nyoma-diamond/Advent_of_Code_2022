@@ -290,7 +290,7 @@ object Main {
     def day7part2(path: String): Int = {
         Using(Source.fromFile(path)) { data =>                                                      // load input data file
             val values = data.getLines                                                              // for each line in file
-                             .foldLeft((0, 0, List[Int](), TreeSet[Int]()))(                        // intialize partial solution to tuple (total memory usage | current directory size | directory queue | set of directory sizes)
+                             .foldLeft((0, 0, List[Int](), TreeSet[Int]()))(                        // initialize partial solution to tuple (total memory usage | current directory size | directory queue | set of directory sizes)
                                  (partial: (Int, Int, List[Int], TreeSet[Int]), cur: String) => {   // given partial solution and current line
                                      if (cur(0).isDigit) {                                          // if the line is a file (has numeric size)
                                          (partial._1 + cur.takeWhile(_ != ' ').toInt,               // add file size to total memory usage
