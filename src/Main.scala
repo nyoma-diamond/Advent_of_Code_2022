@@ -373,7 +373,7 @@ object Main {
                     (prevLoc: ((Int, Int), (Int, Int)), line: String) => {
                         var head = prevLoc._1
                         var tail = prevLoc._2
-                        (0 until line(2).asDigit).foreach(_ => {
+                        (0 until line.drop(2).toInt).foreach(i => {
                             line(0) match {
                                 case 'L' => head = (head._1 - 1, head._2)
                                 case 'R' => head = (head._1 + 1, head._2)
