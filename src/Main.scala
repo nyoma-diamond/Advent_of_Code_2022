@@ -391,10 +391,52 @@ object Main {
                             }
                         })
 
+                        (head, tail)
+                    }
+                )
 
-                    (head, tail)
-                  }
-              )
+            tailPositions.size
+        }.get
+    }
+
+    def day9part2(path: String, knots: Int): Int = {
+        Using(Source.fromFile(path)) { data =>
+            val tailPositions = mutable.HashSet[(Int, Int)]()
+
+            data.getLines()
+                .foldLeft(Seq.fill(knots)((0, 0)))(
+                    (rope: Seq[(Int, Int)], line: String) => {
+
+                        // for each step, update positions of knots
+                        (0 until line.drop(2).toInt).foldLeft(rope)(
+                            (prevLoc: Seq[(Int, Int)], _) => {
+                                // for each knot in the rope, update position
+                                val newRope = prevLoc.scanLeft((Int.MinValue, Int.MinValue))(
+                                    (prevKnot: (Int, Int), curKnot: (Int, Int)) => {
+                                        if (prevKnot == (Int.MinValue, Int.MinValue)) {
+                                            line(0) match {
+                                                case 'L' => (curKnot._1 - 1, curKnot._2)
+                                                case 'R' => (curKnot._1 + 1, curKnot._2)
+                                                case 'D' => (curKnot._1, curKnot._2 - 1)
+                                                case 'U' => (curKnot._1, curKnot._2 + 1)
+                                            }
+                                        } else if ((prevKnot._1 - curKnot._1).abs > 1 || (prevKnot._2 - curKnot._2).abs > 1) {
+                                            val xDiff = prevKnot._1 - curKnot._1
+                                            val yDiff = prevKnot._2 - curKnot._2
+                                            (curKnot._1 + xDiff.sign, curKnot._2 + yDiff.sign)
+                                        } else {
+                                            curKnot
+                                        }
+                                    }
+                                )
+
+                                tailPositions.add(newRope.last)
+                                newRope.tail
+                            }
+                        )
+
+                    }
+                )
 
             tailPositions.size
         }.get
@@ -427,5 +469,7 @@ object Main {
         println("Day 8 part 1: " + day8part1("./in/day8.txt"))
 
         println("Day 9 part 1: " + day9part1("./in/day9.txt"))
+        println("Day 9 part 2: " + day9part2("./in/day9.txt", 10))
+        println("Day 9 part 1 (using part 2 implementation):  " + day9part2("./in/day9.txt", 2))
     }
 }
