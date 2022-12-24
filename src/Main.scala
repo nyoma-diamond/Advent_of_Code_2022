@@ -468,6 +468,37 @@ object Main {
      */
 
 
+    /**
+     * Day 10 part 1: Find the sum of signal strengths for cycles where the cycle count + 20 is a multiple of 40
+     *
+     * @param path path to input file
+     * @return sum of signal strengths
+     */
+    def day10part1(path: String): Int = {
+        Using(Source.fromFile(path)) { data =>                                          // load input data file
+            data.getLines()                                                             // for each line in file
+                .foldLeft((1, 1, 0))(                                                   // initialize starting CPU state to (1, 1, 0) (cycle number, register, sum of relevant signal strengths)
+                    (prev: (Int, Int, Int), instruction: String) => {                   // given the previous CPU state and the current instruction
+                        var cpu = (                                                     // update the CPU...
+                          prev._1 + 1,                                                  // increment the cycle counter
+                          prev._2,                                                      // register is unchanged
+                          prev._3 + prev._1 * prev._2 * (((prev._1 + 20) % 40) == 0)    // add current current signal strength to running sum if cycle count + 20 is a multiple of 40
+                        )
+                        if (instruction.take(4) == "addx") {                            // if the instruction is to add to the register
+                            cpu = (                                                     // update the CPU...
+                              cpu._1 + 1,                                               // increment the cycle counter
+                              cpu._2 + instruction.drop(5).toInt,                       // add provided value to the register
+                              cpu._3 + cpu._1 * cpu._2 * (((cpu._1 + 20) % 40) == 0)    // add current current signal strength to running sum if cycle count + 20 is a multiple of 40
+                            )
+                        }
+                        cpu                                                             // pass forward the new CPU state
+                    }
+                )._3                                                                    // get the sum of relevant signal strengths
+        }.get                                                                           // get final result
+    }
+
+
+
     def main(args: Array[String]): Unit = {
         println("Day 1 part 1: " + day1Part1("./in/day1.txt"))
         println("Day 1 part 2: " + day1Part2("./in/day1.txt", 3))
@@ -496,5 +527,7 @@ object Main {
         println("Day 9 part 1: " + day9part1("./in/day9.txt"))
         println("Day 9 part 2: " + day9part2("./in/day9.txt", 10))
         println("Day 9 part 1 (using part 2 implementation):  " + day9part2("./in/day9.txt", 2))
+
+        println("Day 10 part 1: " + day10part1("./in/day10.txt"))
     }
 }
