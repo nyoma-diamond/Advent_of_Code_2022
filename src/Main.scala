@@ -364,82 +364,95 @@ object Main {
     }
 
 
+    /**
+     * Day 9 part 1: Find the number of locations visited by the tail of the rope
+     *
+     * @param path path to input file
+     * @return number locations visited
+     */
     def day9part1(path: String): Int = {
-        Using(Source.fromFile(path)) { data =>
-            val tailPositions = mutable.HashSet[(Int, Int)]()
+        Using(Source.fromFile(path)) { data =>                                                  // load input data file
+            val tailPositions = mutable.HashSet[(Int, Int)]()                                   // create set of visited positions
 
-            data.getLines()
-                .foldLeft(((0,0), (0,0)))(
-                    (prevLoc: ((Int, Int), (Int, Int)), line: String) => {
-                        var head = prevLoc._1
-                        var tail = prevLoc._2
-                        (0 until line.drop(2).toInt).foreach(i => {
-                            line(0) match {
-                                case 'L' => head = (head._1 - 1, head._2)
-                                case 'R' => head = (head._1 + 1, head._2)
-                                case 'D' => head = (head._1, head._2 - 1)
-                                case 'U' => head = (head._1, head._2 + 1)
+            data.getLines()                                                                     // for each line in file
+                .foldLeft(((0,0), (0,0)))(                                                      // initialize initial head & tail positions to (0,0)
+                    (prevLoc: ((Int, Int), (Int, Int)), line: String) => {                      // given the previous positions of the rope and the current instructions
+                        var head = prevLoc._1                                                   // get the head position
+                        var tail = prevLoc._2                                                   // get the tail position
+
+                        (0 until line.drop(2).toInt).foreach(_ => {                             // for each step
+                            line(0) match {                                                     // based on the direction of the instruction...
+                                case 'L' => head = (head._1 - 1, head._2)                       // left: decrement X of head
+                                case 'R' => head = (head._1 + 1, head._2)                       // right: increment X of head
+                                case 'D' => head = (head._1, head._2 - 1)                       // down: decrement Y of head
+                                case 'U' => head = (head._1, head._2 + 1)                       // up: increment Y of head
                             }
-                            if ((head._1 - tail._1).abs > 1 || (head._2 - tail._2).abs > 1) {
-                                line(0) match {
-                                    case 'L' => tail = (head._1 + 1, head._2)
-                                    case 'R' => tail = (head._1 - 1, head._2)
-                                    case 'D' => tail = (head._1, head._2 + 1)
-                                    case 'U' => tail = (head._1, head._2 - 1)
+                            if ((head._1 - tail._1).abs > 1 || (head._2 - tail._2).abs > 1) {   // if the tail is too now far away from the head...
+                                line(0) match {                                                 // based on the direction of the instruction...
+                                    case 'L' => tail = (head._1 + 1, head._2)                   // left: tail is to the right of the head
+                                    case 'R' => tail = (head._1 - 1, head._2)                   // right: tail is to the left of the head
+                                    case 'D' => tail = (head._1, head._2 + 1)                   // down: tail is above the head
+                                    case 'U' => tail = (head._1, head._2 - 1)                   // up: tail is below the head
                                 }
-                                tailPositions.add(tail)
+                                tailPositions.add(tail)                                         // add the tail position to set of visited positions
                             }
                         })
 
-                        (head, tail)
+                        (head, tail)                                                            // pass forward the rope's new positions
                     }
                 )
 
-            tailPositions.size
-        }.get
+            tailPositions.size                                                                  // compute the number of unique positions visited
+        }.get                                                                                   // get final result
     }
 
+
+    /**
+     * Day 9 part 2: Find the number of locations visited by the tail of a rope with multiple knots
+     * Note: Problem originally requested 10 knots. Abstracted to to an arbitrary number so this solution can also handle part 1!
+     *
+     * @param path path to input file
+     * @param knots number of knots in the rope
+     * @return number locations visited
+     */
     def day9part2(path: String, knots: Int): Int = {
-        Using(Source.fromFile(path)) { data =>
-            val tailPositions = mutable.HashSet[(Int, Int)]()
+        Using(Source.fromFile(path)) { data =>                                                                                  // load input data file
+            val tailPositions = mutable.HashSet[(Int, Int)]()                                                                   // create set of visited positions
 
-            data.getLines()
-                .foldLeft(Seq.fill(knots)((0, 0)))(
-                    (rope: Seq[(Int, Int)], line: String) => {
-
-                        // for each step, update positions of knots
-                        (0 until line.drop(2).toInt).foldLeft(rope)(
-                            (prevLoc: Seq[(Int, Int)], _) => {
-                                // for each knot in the rope, update position
-                                val newRope = prevLoc.scanLeft((Int.MinValue, Int.MinValue))(
-                                    (prevKnot: (Int, Int), curKnot: (Int, Int)) => {
-                                        if (prevKnot == (Int.MinValue, Int.MinValue)) {
-                                            line(0) match {
-                                                case 'L' => (curKnot._1 - 1, curKnot._2)
-                                                case 'R' => (curKnot._1 + 1, curKnot._2)
-                                                case 'D' => (curKnot._1, curKnot._2 - 1)
-                                                case 'U' => (curKnot._1, curKnot._2 + 1)
+            data.getLines()                                                                                                     // for each line in file
+                .foldLeft(Seq.fill(knots)((0, 0)))(                                                                             // initialize initial knot positions to (0,0)
+                    (rope: Seq[(Int, Int)], line: String) => {                                                                  // given the previous position of the rope and the current instructions
+                        (0 until line.drop(2).toInt).foldLeft(rope)(                                                            // initialized the initial rope position to the previous position
+                            (prevRope: Seq[(Int, Int)], _) => {                                                                 // given the position of the rope following the previous step
+                                val newRope = prevRope.scanLeft((Int.MinValue, Int.MinValue))(                                  // initialize the initial knot position to (Int.MinValue, Int.MinValue)
+                                    (prevKnot: (Int, Int), curKnot: (Int, Int)) => {                                            // given the position of the previous knot and the position of the current knot
+                                        if (prevKnot == (Int.MinValue, Int.MinValue)) {                                         // if the previous knot is the initial knot...
+                                            line(0) match {                                                                     // based on the direction of the instruction...
+                                                case 'L' => (curKnot._1 - 1, curKnot._2)                                        // left: decrement X of the current knot
+                                                case 'R' => (curKnot._1 + 1, curKnot._2)                                        // right: increment X of the current knot
+                                                case 'D' => (curKnot._1, curKnot._2 - 1)                                        // down: decrement Y of the current knot
+                                                case 'U' => (curKnot._1, curKnot._2 + 1)                                        // up: increment Y of the current knot
                                             }
-                                        } else if ((prevKnot._1 - curKnot._1).abs > 1 || (prevKnot._2 - curKnot._2).abs > 1) {
-                                            val xDiff = prevKnot._1 - curKnot._1
-                                            val yDiff = prevKnot._2 - curKnot._2
-                                            (curKnot._1 + xDiff.sign, curKnot._2 + yDiff.sign)
-                                        } else {
-                                            curKnot
+                                        } else if ((prevKnot._1 - curKnot._1).abs > 1 || (prevKnot._2 - curKnot._2).abs > 1) {  // otherwise, if the current knot is too far away from the previous knot...
+                                            val xDiff = prevKnot._1 - curKnot._1                                                // get the difference in X
+                                            val yDiff = prevKnot._2 - curKnot._2                                                // get the difference in Y
+                                            (curKnot._1 + xDiff.sign, curKnot._2 + yDiff.sign)                                  // move the current knot one space in the direction of each difference (0 difference results in no movement in that direction)
+                                        } else {                                                                                // otherwise...
+                                            curKnot                                                                             // do not change the position of the current knot
                                         }
                                     }
                                 )
 
-                                tailPositions.add(newRope.last)
-                                newRope.tail
+                                tailPositions.add(newRope.last)                                                                 // add the tail position to set of visited positions
+                                newRope.tail                                                                                    // pass forward the rope's new positions (tail to remove the extra (Int.MinValue, Int.MinValue) knot)
                             }
                         )
 
                     }
                 )
 
-            tailPositions.size
-        }.get
+            tailPositions.size                                                                                                  // compute the number of unique positions visited
+        }.get                                                                                                                   // get final result
     }
 
 
