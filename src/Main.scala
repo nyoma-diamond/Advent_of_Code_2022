@@ -364,6 +364,43 @@ object Main {
     }
 
 
+    def day9part1(path: String): Int = {
+        Using(Source.fromFile(path)) { data =>
+            val tailPositions = mutable.HashSet[(Int, Int)]()
+
+            data.getLines()
+                .foldLeft(((0,0), (0,0)))(
+                    (prevLoc: ((Int, Int), (Int, Int)), line: String) => {
+                        var head = prevLoc._1
+                        var tail = prevLoc._2
+                        (0 until line(2).asDigit).foreach(_ => {
+                            line(0) match {
+                                case 'L' => head = (head._1 - 1, head._2)
+                                case 'R' => head = (head._1 + 1, head._2)
+                                case 'D' => head = (head._1, head._2 - 1)
+                                case 'U' => head = (head._1, head._2 + 1)
+                            }
+                            if ((head._1 - tail._1).abs > 1 || (head._2 - tail._2).abs > 1) {
+                                line(0) match {
+                                    case 'L' => tail = (head._1 + 1, head._2)
+                                    case 'R' => tail = (head._1 - 1, head._2)
+                                    case 'D' => tail = (head._1, head._2 + 1)
+                                    case 'U' => tail = (head._1, head._2 - 1)
+                                }
+                                tailPositions.add(tail)
+                            }
+                        })
+
+
+                    (head, tail)
+                  }
+              )
+
+            tailPositions.size
+        }.get
+    }
+
+
     def main(args: Array[String]): Unit = {
         println("Day 1 part 1: " + day1Part1("./in/day1.txt"))
         println("Day 1 part 2: " + day1Part2("./in/day1.txt", 3))
@@ -388,5 +425,7 @@ object Main {
         println("Day 7 part 2: " + day7part2("./in/day7.txt"))
 
         println("Day 8 part 1: " + day8part1("./in/day8.txt"))
+
+        println("Day 9 part 1: " + day9part1("./in/day9.txt"))
     }
 }
