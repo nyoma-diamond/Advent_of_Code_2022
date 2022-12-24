@@ -363,6 +363,10 @@ object Main {
         }.get                                                               // get final result
     }
 
+    /*
+    Day 8 part 1 not yet implemented. Finding a way to do this efficiently has been very challenging, so it's on hold.
+     */
+
 
     /**
      * Day 9 part 1: Find the number of locations visited by the tail of the rope
@@ -454,6 +458,14 @@ object Main {
             tailPositions.size                                                                                                  // compute the number of unique positions visited
         }.get                                                                                                                   // get final result
     }
+
+    /*
+    Note on day 9 solutions:
+    Both solutions could be done without inserting into a HashSet by using scanLeft (instead of foldLeft) passing
+    forward all of the rope's positions after each step (instead of just the final position) and then using
+    .flatten.distinctBy(_.last).size. However this introduces a lot of unnecessary complexity for zero gain because
+    .distinct and .distinctBy use HashSet under the hood.
+     */
 
 
     def main(args: Array[String]): Unit = {
