@@ -498,6 +498,45 @@ object Main {
     }
 
 
+    /**
+     * Day 10 part 2: Generate image output based on received signals
+     *
+     * @param path path to input file
+     * @return string representing image output
+     */
+    def day10part2(path: String): String = {
+        Using(Source.fromFile(path)) { data =>                                              // load input data file
+            data.getLines()                                                                 // for each line in file
+                .foldLeft((1, 1, ""))(                                                      // initialize starting CPU/CRT state to (1, 1, "") (cycle number, register, CRT output)
+                    (prev: (Int, Int, String), instruction: String) => {                    // given the previous CPU/CRT state and the current instruction
+                        var cpu = (                                                         // update the CPU/CRT...
+                          prev._1 + 1,                                                      // increment the cycle counter
+                          prev._2,                                                          // register is unchanged
+                          prev._3.appended(                                                 // append to the CRT display...
+                              if ((prev._2 until prev._2 + 3) contains prev._1 % 40) '#'    // lit pixel (#) if the register aligns with the sprite's position
+                              else '.'                                                      // otherwise, unlit pixel (.)
+                          )
+                        )
+                        if (instruction.take(4) == "addx") {                                // if the instruction is to add to the register
+                            cpu = (                                                         // update the CPU/CRT...
+                              cpu._1 + 1,                                                   // increment the cycle counter
+                              cpu._2 + instruction.drop(5).toInt,                           // register is unchanged
+                              cpu._3.appended(                                              // append to the CRT display...
+                                  if ((cpu._2 until cpu._2 + 3) contains cpu._1 % 40) '#'   // lit pixel (#) if the register aligns with the sprite's position
+                                  else '.'                                                  // otherwise, unlit pixel (.)
+                              )
+                            )
+                        }
+                        cpu                                                                 // pass forward the new CPU/CRT state
+                    }
+                )._3                                                                        // get the CRT output
+                .grouped(40)                                                                // split output into 40-pixel wide rows
+                .flatMap(_.concat("\n"))                                                    // add a new line character to the end of each row
+                .mkString                                                                   // convert to string
+        }.get                                                                               // get final result
+    }
+
+
 
     def main(args: Array[String]): Unit = {
         println("Day 1 part 1: " + day1Part1("./in/day1.txt"))
@@ -529,5 +568,6 @@ object Main {
         println("Day 9 part 1 (using part 2 implementation):  " + day9part2("./in/day9.txt", 2))
 
         println("Day 10 part 1: " + day10part1("./in/day10.txt"))
+        println("Day 10 part 2:\n" + day10part2("./in/day10.txt"))
     }
 }
